@@ -1,0 +1,14 @@
+version: '3.4'
+
+services:
+  filepathapi:
+    image: filepathapi
+    build:
+      context: .
+      dockerfile: ./Dockerfile
+    volumes:
+      - type: bind
+        source: $filepathapiroot
+        target: /app/root/
+    ports:
+      - 5000:5000

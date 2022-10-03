@@ -1,0 +1,356 @@
+openapi: 3.0.3
+info:
+  title: file-path-api
+  description: |-
+    This is a simple file access API, created as an example for my interview process with WeaveGrid. Please note that the 'permissions' and 'owner' won't work properly in a windows environment, and I was unable to test it in a linux one.
+  contact:
+    email: zoehayes286@gmail.com
+  version: 1.0.0
+servers:
+  # Added by API Auto Mocking Plugin
+  - description: SwaggerHub API Auto Mocking
+    url: https://virtserver.swaggerhub.com/ZOEHAYES286/file-path-api/1.0.0
+  - description: Local instance if running the docker container from the github repo.
+    url: http://localhost:5000/api/
+paths:
+  /:
+    get:
+      summary: Gets the root directory's contents.
+      description: Get the contents of the root directory.
+      responses:
+        '200':
+          description: Successful retrieval of directory contents
+          content:
+            application/json:
+              schema:
+                oneOf:
+                  - $ref: '#/components/schemas/DirectoryContents'
+                  - $ref: '#/components/schemas/FileContents'
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '500':
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+  /{filepath}:
+    get:
+      summary: Gets a directory or file's contents
+      description: Get the contents of the passed filepath variable, whether it is a directory or a file.
+      parameters:
+        - name: filepath
+          schema: 
+            type: string
+            format: file
+          in: path
+          required: true
+          description: The path to the file or directory you wish to explore
+      responses:
+        '200':
+          description: Successful retrieval of file/directory contents
+          content:
+            application/json:
+              schema:
+                oneOf:
+                  - $ref: '#/components/schemas/DirectoryContents'
+                  - $ref: '#/components/schemas/FileContents'
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '500':
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+    post:
+      summary: Creates a directory or file
+      description: Creates a directory or file at the passed filepath, according to the parameters specified in the request body.
+      parameters:
+        - name: filepath
+          schema: 
+            type: string
+            format: file
+          in: path
+          required: true
+          description: The path of the file or directory you wish to create
+      requestBody:
+        content:
+            application/json:
+              schema:
+                oneOf:
+                  - $ref: '#/components/schemas/NewFile'
+                  - $ref: '#/components/schemas/NewDirectory'
+      responses:
+        '200':
+          description: Successful creation of file/directory
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '500':
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+    put:
+      summary: Updates a directory or file
+      description: Updates a directory or file at the passed filepath, according to the parameters specified in the request body.
+      parameters:
+        - name: filepath
+          schema: 
+            type: string
+            format: file
+          in: path
+          required: true
+          description: The path of the file or directory you wish to update
+      requestBody:
+        content:
+            application/json:
+              schema:
+                oneOf:
+                  - $ref: '#/components/schemas/UpdateFile'
+                  - $ref: '#/components/schemas/UpdateDirectory'
+      responses:
+        '200':
+          description: Successful creation of file/directory
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '500':
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+    delete:
+      summary: Deletes a directory or file
+      description: Deletes a directory or file at the passed filepath.
+      parameters:
+        - name: filepath
+          schema: 
+            type: string
+            format: file
+          in: path
+          required: true
+          description: The path of the file or directory you wish to delete
+      responses:
+        '200':
+          description: Successful creation of file/directory
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '500':
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+components:
+  schemas:
+    File:
+      type: object
+      properties:
+        name: 
+          type: string
+          description: File name
+          example: testfile.txt
+        size: 
+          type: integer
+          description: Size of the file in bytes
+          format: int32
+          example: 34
+        owner: 
+          type: string
+          description: Uid of the owner of the file
+          example: 3278
+        permissions: 
+          type: string
+          description: String representation of the files permissions
+          example: -rwxr-xr-x
+    FileContents:
+      type: object
+      properties:
+        name: 
+          type: string
+          description: File name
+          example: testfile.txt
+        size: 
+          type: integer
+          description: Size of the file in bytes
+          format: int32
+          example: 34
+        owner: 
+          type: string
+          description: Uid of the owner of the file
+          example: 3278
+        permissions: 
+          type: string
+          description: String representation of the files permissions
+          example: -rwxr-xr-x
+        contents:
+          type: string
+          description: String value of the file's contents
+          example: Lorem ipsum dolor set amor
+    Directory:
+      type: object
+      properties:
+        name: 
+          type: string
+          description: Directory name
+          example: testfolder
+        size: 
+          type: integer
+          description: Size of the directory in bytes
+          format: int32
+          example: 0
+        owner: 
+          type: string
+          description: Uid of the owner of the directory
+          example: 3278
+        permissions: 
+          type: string
+          description: String representation of the directory's permissions
+          example: -rwxr-xr-x
+    DirectoryContents:
+      type: object
+      properties:
+        files:
+          type: array
+          items:
+            $ref: '#/components/schemas/File'
+        directories:
+          type: array
+          items:
+            $ref: '#/components/schemas/Directory'
+    Error:
+      type: object
+      properties:
+        status:
+          type: integer
+          format: int32
+          example: 400
+        message:
+          type: string
+          description: Brief description of the status code
+          example: Bad Request
+        detail: 
+          type: string
+          description: Detailed message explaining why the error occurred
+          example: Specified path does not exist
+    NewFile:
+      type: object
+      properties:
+        owner: 
+          type: string
+          description: Uid of the owner of the file
+          example: 3278
+        permissions: 
+          type: string
+          description: String representation of the files permissions
+          example: -rwxr-xr-x
+        contents:
+          type: string
+          description: String value of the file's contents
+          example: Lorem ipsum dolor set amor
+        type: 
+          type: string
+          description: The string "file"
+          example: file
+    NewDirectory:
+      type: object
+      properties:
+        owner: 
+          type: string
+          description: Uid of the owner of the file
+          example: 3278
+        permissions: 
+          type: string
+          description: String representation of the files permissions
+          example: drwxrwxrwx
+        type: 
+          type: string
+          description: The string "directory"
+          example: file
+    UpdateFile:
+      type: object
+      properties:
+        filepath:
+          type: string
+          format: file
+          description: The new filepath
+          example: folder/test/newfile.txt
+        owner: 
+          type: string
+          description: Uid of the owner of the file
+          example: 3278
+        permissions: 
+          type: string
+          description: String representation of the files permissions
+          example: -rwxr-xr-x
+        contents:
+          type: string
+          description: String value of the file's contents
+          example: Lorem ipsum dolor set amor
+    UpdateDirectory:
+      type: object
+      properties:
+        filepath:
+          type: string
+          format: file
+          description: The new filepath
+          example: folder/test/newfolder
+        owner: 
+          type: string
+          description: Uid of the owner of the file
+          example: 3278
+        permissions: 
+          type: string
+          description: String representation of the files permissions
+          example: drwxrwxrwx
+        type: 
+          type: string
+          description: The string "directory"
+          example: file
+  requestBodies:
+    NewFile:
+      description: The description of a new file used in a post request.
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/NewFile'
+    NewDirectory:
+      description: The description of a new directory used in a post request.
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/NewDirectory'
+    UpdateFile:
+      description: The data to update a file in a put request.
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/UpdateFile'
+    UpdateDirectory:
+      description: The data to update a directory in a put request.
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/UpdateDirectory'
