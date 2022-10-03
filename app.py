@@ -9,7 +9,7 @@ from models.error import Error, ErrorSchema
 
 app = Flask(__name__, static_url_path='/static', static_folder='static')
 
-root_dir = os.path.join(os.getcwd(), 'testdir')
+root_dir = os.path.join(os.getcwd(), 'root')
 
 @app.route('/api/', methods=["GET"])
 @app.route('/api/<path:filepath>', methods=["GET"])
